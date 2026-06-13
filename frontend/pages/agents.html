@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>AI Agent Monitor — HealthAI</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar"><div class="navbar-inner">
+  <a href="/" class="navbar-brand"><span class="logo-icon">🧬</span><span>HealthAI</span></a>
+  <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+  <ul class="navbar-links" id="nav-links">
+    <li><a href="/">🏠 Home</a></li>
+    <li><a href="/pages/doctor.html">🩺 Doctor</a></li>
+    <li><a href="/pages/patient.html">👤 Patient</a></li>
+    <li><a href="/pages/staff.html">🏥 Staff</a></li>
+    <li><a href="/pages/agents.html" class="active">🤖 AI Agents</a></li>
+  </ul>
+</div></nav>
+
+<div class="container">
+  <div class="page-hero">
+    <h1>🤖 <span class="gradient-text">AI Multi-Agent Monitor</span></h1>
+    <p class="subtitle">Observe the four-agent pipeline in action, review logs, and trigger analyses on pending images.</p>
+  </div>
+
+  <!-- Pipeline visualization -->
+  <div class="card mb-3">
+    <div class="card-header"><h3>🧠 Agent Pipeline</h3></div>
+    <div class="pipeline" id="pipeline-viz">
+      <div class="pipeline-step" id="step-screener">
+        <div class="step-circle">🔍</div>
+        <span class="step-label">Imaging Agent</span>
+        <span class="step-sublabel">Analyzes Scan</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step" id="step-specialist">
+        <div class="step-circle">👨‍⚕️</div>
+        <span class="step-label">Doctor Agent</span>
+        <span class="step-sublabel">Sends Result to Doctor</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step" id="step-translator">
+        <div class="step-circle">📱</div>
+        <span class="step-label">Patient Agent</span>
+        <span class="step-sublabel">Sends Alerts to Patient</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step" id="step-regulatory">
+        <div class="step-circle">🏥</div>
+        <span class="step-label">Hospital Agent</span>
+        <span class="step-sublabel">Stores Data</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick analyze -->
+  <div class="card mb-3">
+    <div class="card-header"><h3>⚡ Quick Analyze</h3></div>
+    <p style="color:var(--text-secondary);font-size:.9rem;margin-bottom:12px">Select a pending image and run the full AI pipeline.</p>
+    <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px"><label>Pending Image</label><select id="pending-select"><option value="">Loading…</option></select></div>
+      <button class="btn btn-primary" id="analyze-btn" onclick="runPipeline()">🚀 Run Full Pipeline</button>
+    </div>
+    <div id="pipeline-result" class="mt-3"></div>
+  </div>
+
+  <!-- Agent Logs -->
+  <div class="card mb-3">
+    <div class="card-header"><h3>📜 Agent Activity Log</h3><button class="btn btn-ghost btn-sm" onclick="loadLogs()">🔄 Refresh</button></div>
+    <div id="agent-logs"><div class="empty-state"><div class="icon">📜</div><p>No agent activity yet. Run an analysis above to see logs.</p></div></div>
+  </div>
+</div>
+
+<footer class="footer"><p>© 2026 AI Healthcare Imaging System</p></footer>
+<script src="/js/api.js"></script>
+<script src="/js/agents.js"></script>
+</body>
+</html>

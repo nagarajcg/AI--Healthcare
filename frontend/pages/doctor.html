@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="Doctor Dashboard — Upload DICOM scans, review AI analysis, manage patients.">
+  <title>Doctor Dashboard — HealthAI</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar"><div class="navbar-inner">
+  <a href="/" class="navbar-brand"><span class="logo-icon">🧬</span><span>HealthAI</span></a>
+  <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+  <ul class="navbar-links" id="nav-links">
+    <li><a href="/">🏠 Home</a></li>
+    <li><a href="/pages/doctor.html" class="active">🩺 Doctor</a></li>
+    <li><a href="/pages/patient-login.html">👤 Patient</a></li>
+    <li><a href="/pages/staff.html">🏥 Staff</a></li>
+    <li><a href="/pages/agents.html">🤖 AI Agents</a></li>
+  </ul>
+</div></nav>
+
+<div class="container">
+  <div class="page-hero">
+    <h1>🩺 <span class="gradient-text">Doctor Dashboard</span></h1>
+    <p class="subtitle">Upload DICOM scans, review AI-analyzed reports, manage patients, and approve findings.</p>
+  </div>
+
+  <!-- Doctor selector -->
+  <div class="card mb-3">
+    <div class="card-header"><h3>👨‍⚕️ Select Doctor</h3></div>
+    <select id="doctor-select" onchange="loadDoctor()">
+      <option value="">Loading doctors…</option>
+    </select>
+  </div>
+
+  <!-- Stats row -->
+  <div class="grid-4 mb-3" id="stats-row"></div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-nav mb-3" id="doctor-tabs">
+    <button class="tab-btn active" onclick="switchTab('patients')">📋 Patients</button>
+    <button class="tab-btn" onclick="switchTab('imaging')">🖼️ Imaging</button>
+    <button class="tab-btn" onclick="switchTab('dicom')">🔬 DICOM Scans</button>
+  </div>
+
+  <!-- TAB: Patient list -->
+  <div class="tab-content active" id="tab-patients">
+    <div class="card mb-3">
+      <div class="card-header"><h3>📋 Assigned Patients</h3></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Condition</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="patient-table"><tr><td colspan="6" class="text-center" style="color:var(--text-muted)">Select a doctor above</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- TAB: Imaging records -->
+  <div class="tab-content" id="tab-imaging">
+    <div class="card mb-3">
+      <div class="card-header"><h3>🖼️ Imaging Records</h3><button class="btn btn-primary btn-sm" onclick="openUploadModal()">+ Upload Image</button></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>Patient</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="imaging-table"><tr><td colspan="5" class="text-center" style="color:var(--text-muted)">Select a doctor above</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- TAB: DICOM Scans -->
+  <div class="tab-content" id="tab-dicom">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h3>🔬 DICOM Scan Uploads</h3>
+        <button class="btn btn-primary btn-sm" onclick="openDicomUpload()">📤 Upload DICOM</button>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>Study ID</th><th>Patient</th><th>Scan Title</th><th>Scan Type</th><th>Body Part</th><th>Upload Date</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="dicom-table"><tr><td colspan="8" class="text-center" style="color:var(--text-muted)">Select a doctor above</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- Analysis result -->
+  <div id="analysis-result"></div>
+</div>
+
+<!-- Legacy Upload Modal -->
+<div class="modal-backdrop" id="upload-modal">
+  <div class="modal">
+    <div class="modal-header"><h3>📤 Upload New Imaging</h3><button class="modal-close" onclick="closeUploadModal()">✕</button></div>
+    <div class="form-group"><label>Patient</label><select id="upload-patient"></select></div>
+    <div class="form-group"><label>Imaging Type</label>
+      <select id="upload-type">
+        <option>Chest X-Ray</option><option>Brain MRI</option><option>Knee X-Ray</option><option>CT Scan</option><option>Dental X-Ray</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="submitUpload()">Upload & Submit</button>
+  </div>
+</div>
+
+<!-- DICOM Upload Modal -->
+<div class="modal-backdrop" id="dicom-upload-modal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header">
+      <h3>📤 Upload DICOM Scan</h3>
+      <button class="modal-close" onclick="closeDicomUpload()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Select Patient</label>
+      <select id="dicom-patient"></select>
+    </div>
+    <div class="form-group">
+      <label>Scan Title</label>
+      <input type="text" id="dicom-title" placeholder="e.g. Chest X-Ray PA View">
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Scan Type</label>
+        <select id="dicom-scan-type">
+          <option>X-Ray</option><option>MRI</option><option>CT Scan</option><option>Ultrasound</option><option>PET Scan</option><option>Mammography</option><option>Fluoroscopy</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Body Part</label>
+        <select id="dicom-body-part">
+          <option>Chest</option><option>Brain</option><option>Knee</option><option>Spine</option><option>Abdomen</option><option>Pelvis</option><option>Shoulder</option><option>Hip</option><option>Hand</option><option>Foot</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Clinical Notes</label>
+      <textarea id="dicom-notes" rows="3" placeholder="Any relevant clinical notes for this scan..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Upload DICOM File (.dcm)</label>
+      <div class="dicom-drop-zone" id="dicom-drop-zone">
+        <input type="file" id="dicom-file" accept=".dcm" style="display:none" onchange="handleDicomFile(this)">
+        <div class="drop-zone-content" id="drop-zone-content">
+          <div class="drop-icon">📁</div>
+          <p>Click or drag & drop a <strong>.dcm</strong> file here</p>
+          <span class="drop-hint">Only DICOM (.dcm) files accepted</span>
+        </div>
+      </div>
+    </div>
+    <div id="dicom-upload-status"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-full" id="dicom-submit-btn" onclick="submitDicomUpload()">📤 Upload DICOM Scan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Metadata Modal -->
+<div class="modal-backdrop" id="metadata-modal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h3>📋 DICOM Metadata</h3>
+      <button class="modal-close" onclick="closeMetadataModal()">✕</button>
+    </div>
+    <div id="metadata-content"></div>
+  </div>
+</div>
+
+<!-- DICOM Viewer Modal -->
+<div class="modal-backdrop" id="viewer-modal">
+  <div class="modal" style="max-width:800px">
+    <div class="modal-header">
+      <h3>🔬 DICOM Viewer</h3>
+      <button class="modal-close" onclick="closeViewerModal()">✕</button>
+    </div>
+    <div id="viewer-content" style="text-align:center;min-height:300px;display:flex;align-items:center;justify-content:center;"></div>
+  </div>
+</div>
+
+<!-- Create Prescription Modal -->
+<div class="modal-backdrop" id="create-prescription-modal">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header">
+      <h3>💊 Create Prescription</h3>
+      <button class="modal-close" onclick="closePrescriptionModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Patient</label>
+      <input type="text" id="presc-patient-name" readonly style="background:var(--bg-card);color:var(--text-muted);cursor:not-allowed;">
+      <input type="hidden" id="presc-patient-id">
+    </div>
+    <div class="form-group">
+      <label>Diagnosis</label>
+      <input type="text" id="presc-diagnosis" placeholder="e.g. Hypertension">
+    </div>
+    <div class="form-group">
+      <label>Medicines Prescribed</label>
+      <textarea id="presc-medicines" rows="5" placeholder="Enter medicines, strength, and frequency (e.g. Paracetamol 500mg 1-0-1)..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Dosage & Instructions</label>
+      <textarea id="presc-instructions" rows="5" placeholder="Detailed instructions for the patient and staff..."></textarea>
+    </div>
+    <div class="form-group" style="display:none">
+      <label>Dosage (Legacy)</label>
+      <input type="text" id="presc-dosage" value="As per instructions">
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Test Recommendations</label>
+        <input type="text" id="presc-tests" placeholder="e.g. Blood Test, ECG">
+      </div>
+      <div class="form-group">
+        <label>Follow-up Date</label>
+        <input type="date" id="presc-followup">
+      </div>
+    </div>
+    <div id="presc-upload-status"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary btn-full" id="presc-submit-btn" onclick="submitPrescription()">📤 Send to Staff & Patient</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer"><p>© 2026 AI Healthcare Imaging System</p></footer>
+<script src="/js/api.js"></script>
+<script src="/js/doctor.js"></script>
+</body>
+</html>

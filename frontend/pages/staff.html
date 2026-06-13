@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Hospital Dashboard — HealthAI</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .intake-form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .intake-form .full-width{grid-column:1/-1}
+    .assigned-doctor-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:var(--radius-sm);background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);color:var(--accent-green);font-weight:600;font-size:.9rem;margin-top:8px}
+    .status-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+    .status-dot.pending{background:var(--accent-amber)}.status-dot.critical{background:var(--accent-rose)}.status-dot.completed{background:var(--accent-green)}.status-dot.analyzed{background:var(--accent-cyan)}
+    .result-toast{padding:20px;border-radius:var(--radius-md);border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.08);margin-top:16px;animation:modalIn .3s var(--ease)}
+    .result-toast h4{color:var(--accent-green);margin-bottom:8px}
+    @media(max-width:640px){.intake-form{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav class="navbar"><div class="navbar-inner">
+  <a href="/" class="navbar-brand"><span class="logo-icon">🧬</span><span>HealthAI</span></a>
+  <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+  <ul class="navbar-links" id="nav-links">
+    <li><a href="/">🏠 Home</a></li>
+    <li><a href="/pages/doctor.html">🩺 Doctor</a></li>
+    <li><a href="/pages/patient.html">👤 Patient</a></li>
+    <li><a href="/pages/staff.html" class="active">🏥 Staff</a></li>
+    <li><a href="/pages/agents.html">🤖 AI Agents</a></li>
+  </ul>
+</div></nav>
+
+<div class="container">
+  <div class="page-hero">
+    <h1>🏥 <span class="gradient-text">Hospital Dashboard</span></h1>
+    <p class="subtitle">Register patients, upload scans, auto-assign doctors, and track the full imaging workflow.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid-4 mb-3" id="stats-grid"><div class="stat-card blue"><div class="spinner"></div></div></div>
+
+  <!-- ═══ Patient Intake Form ═══ -->
+  <div class="card mb-3">
+    <div class="card-header"><h3>➕ New Patient Intake</h3></div>
+    <p style="color:var(--text-secondary);font-size:.9rem;margin-bottom:16px">Enter patient details and upload a scan. The system will <strong>automatically assign a specialist</strong> and run AI analysis.</p>
+    <div class="intake-form">
+      <div class="form-group"><label>Patient Name *</label><input id="intake-name" placeholder="e.g. Rahul Sharma"></div>
+      <div class="form-group"><label>Age *</label><input id="intake-age" type="number" placeholder="e.g. 45" min="0" max="150"></div>
+      <div class="form-group"><label>Gender</label>
+        <select id="intake-gender"><option>Male</option><option>Female</option><option>Other</option></select>
+      </div>
+      <div class="form-group"><label>Contact</label><input id="intake-contact" placeholder="+91-XXXXX-XXXXX"></div>
+      <div class="form-group full-width"><label>Problem Description *</label>
+        <textarea id="intake-problem" rows="3" placeholder="Describe the problem… e.g. 'Severe ear pain and hearing loss' or 'Chest pain while breathing' or 'Knee fracture suspected'"></textarea>
+      </div>
+      <div class="form-group"><label>Scan Type</label>
+        <select id="intake-scan">
+          <option>Chest X-Ray</option><option>Brain MRI</option><option>Knee X-Ray</option><option>CT Scan</option><option>Dental X-Ray</option><option>Ultrasound</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;align-items:end">
+        <button class="btn btn-primary" id="intake-btn" onclick="submitIntake()" style="width:100%;justify-content:center;padding:12px">🚀 Submit & Auto-Assign</button>
+      </div>
+    </div>
+    <div id="intake-result"></div>
+  </div>
+
+  <!-- ═══ Patient List ═══ -->
+  <div class="card mb-3">
+    <div class="card-header"><h3>📋 Patient List</h3><button class="btn btn-ghost btn-sm" onclick="loadAll()">🔄 Refresh</button></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>ID</th><th>Name</th><th>Age</th><th>Condition</th><th>Assigned Doctor</th><th>Scan</th><th>Status</th></tr></thead>
+      <tbody id="patient-table"><tr><td colspan="7">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <div class="grid-2 mb-3">
+    <!-- Tasks -->
+    <div class="card">
+      <div class="card-header"><h3>📝 Task Management</h3><button class="btn btn-primary btn-sm" onclick="openTaskModal()">+ New Task</button></div>
+      <div id="task-list"><div class="spinner"></div></div>
+    </div>
+    <!-- Appointment Requests -->
+    <div class="card">
+      <div class="card-header"><h3>📅 Appointment Requests</h3></div>
+      <div id="appointments-list"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <div class="grid-2 mb-3">
+    <!-- System Notifications Feed -->
+    <div class="card">
+      <div class="card-header"><h3>🔔 System Notifications</h3><span class="badge badge-cyan" id="staff-notif-count">0</span></div>
+      <div id="staff-notifications-list" style="max-height:400px;overflow-y:auto"><div class="spinner"></div></div>
+    </div>
+    <!-- Imaging Pipeline -->
+    <div class="card">
+      <div class="card-header"><h3>🖼️ Imaging Pipeline</h3></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Image</th><th>Patient</th><th>Type</th><th>Status</th></tr></thead>
+        <tbody id="imaging-overview"><tr><td colspan="4">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- New Task Modal -->
+<div class="modal-backdrop" id="task-modal">
+  <div class="modal">
+    <div class="modal-header"><h3>📝 Create Task</h3><button class="modal-close" onclick="closeTaskModal()">✕</button></div>
+    <div class="form-group"><label>Title</label><input id="task-title" placeholder="e.g. Schedule MRI for patient"></div>
+    <div class="form-group"><label>Assign To</label><input id="task-assign" placeholder="e.g. Nurse Kavita"></div>
+    <div class="form-group"><label>Priority</label>
+      <select id="task-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select>
+    </div>
+    <button class="btn btn-primary" onclick="createTask()">Create Task</button>
+  </div>
+</div>
+
+<footer class="footer"><p>© 2026 AI Healthcare Imaging System</p></footer>
+<script src="/js/api.js"></script>
+<script src="/js/staff.js"></script>
+</body>
+</html>

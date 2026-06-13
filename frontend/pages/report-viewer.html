@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="View, translate, listen, and download your medical report.">
+  <title>Report Viewer — HealthAI</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar"><div class="navbar-inner">
+  <a href="/" class="navbar-brand"><span class="logo-icon">🧬</span><span>HealthAI</span></a>
+  <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+  <ul class="navbar-links" id="nav-links">
+    <li><a href="/">🏠 Home</a></li>
+    <li><a href="/pages/doctor.html">🩺 Doctor</a></li>
+    <li><a href="/pages/patient.html" class="active">👤 Patient</a></li>
+    <li><a href="/pages/staff.html">🏥 Staff</a></li>
+    <li><a href="/pages/agents.html">🤖 AI Agents</a></li>
+  </ul>
+</div></nav>
+
+<div class="container">
+  <div class="page-hero">
+    <a href="/pages/patient.html" class="back-link">← Back to Dashboard</a>
+    <h1>📄 <span class="gradient-text" id="report-title">Report Viewer</span></h1>
+    <p class="subtitle" id="report-subtitle">Loading report details...</p>
+  </div>
+
+  <!-- Action bar -->
+  <div class="viewer-actions card mb-3" id="action-bar" style="display:none">
+    <button class="btn btn-primary" id="btn-download" onclick="downloadReport()">⬇ Download PDF</button>
+    <button class="btn btn-success" id="btn-translate" onclick="openTranslateModal()">🌐 Translate</button>
+    <button class="btn btn-ghost" id="btn-listen" onclick="listenReport()">🔊 Listen</button>
+    <button class="btn btn-ghost" id="btn-share" onclick="shareReport()">📤 Share</button>
+  </div>
+
+  <div class="grid-2 mb-3">
+    <!-- Report preview -->
+    <div class="card">
+      <div class="card-header"><h3>📋 Report Preview</h3></div>
+      <div id="report-preview" class="report-preview-content">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- Report metadata -->
+    <div class="card" id="report-meta-card">
+      <div class="card-header"><h3>ℹ️ Report Details</h3></div>
+      <div id="report-meta"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- Translation result -->
+  <div class="card mb-3" id="translation-card" style="display:none">
+    <div class="card-header"><h3>🌐 Translation</h3>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('translation-card').style.display='none'">✕ Close</button>
+    </div>
+    <div class="form-group">
+      <label>Language</label>
+      <select id="viewer-translate-lang">
+        <option value="English">English</option>
+        <option value="Hindi">हिन्दी (Hindi)</option>
+        <option value="Kannada">ಕನ್ನಡ (Kannada)</option>
+        <option value="Tamil">தமிழ் (Tamil)</option>
+        <option value="Telugu">తెలుగు (Telugu)</option>
+        <option value="Malayalam">മലയാളം (Malayalam)</option>
+      </select>
+    </div>
+    <button class="btn btn-primary mb-3" onclick="runTranslation()">🌐 Translate Now</button>
+    <div id="viewer-translate-result"></div>
+  </div>
+
+  <!-- Imaging study -->
+  <div class="card mb-3" id="imaging-card" style="display:none">
+    <div class="card-header"><h3>🔬 Associated Imaging Study</h3></div>
+    <div id="imaging-details"></div>
+  </div>
+</div>
+
+<!-- TTS Player bar -->
+<div class="tts-player" id="tts-player" style="display:none">
+  <div class="tts-inner">
+    <span class="tts-label">🔊 Reading report...</span>
+    <div class="tts-controls">
+      <button class="btn btn-sm btn-ghost" onclick="speechSynthesis.pause()">⏸ Pause</button>
+      <button class="btn btn-sm btn-ghost" onclick="speechSynthesis.resume()">▶ Resume</button>
+      <button class="btn btn-sm btn-danger" onclick="stopTTS()">⏹ Stop</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer"><p>© 2026 AI Healthcare Imaging System</p></footer>
+<script src="/js/api.js"></script>
+<script src="/js/report-viewer.js"></script>
+</body>
+</html>

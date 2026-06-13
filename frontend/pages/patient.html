@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="Your personal health dashboard — reports, prescriptions, appointments, and AI insights.">
+  <title>Patient Dashboard — HealthAI</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar"><div class="navbar-inner">
+  <a href="/" class="navbar-brand"><span class="logo-icon">🧬</span><span>HealthAI</span></a>
+  <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+  <ul class="navbar-links" id="nav-links">
+    <li><a href="/">🏠 Home</a></li>
+    <li><a href="/pages/doctor.html">🩺 Doctor</a></li>
+    <li><a href="/pages/patient.html" class="active">👤 Patient</a></li>
+    <li><a href="/pages/staff.html">🏥 Staff</a></li>
+    <li><a href="/pages/agents.html">🤖 AI Agents</a></li>
+    <li><a href="#" id="logout-btn" onclick="logout()" style="color:var(--accent-rose)">🚪 Logout</a></li>
+  </ul>
+</div></nav>
+
+<div class="container">
+  <!-- Welcome header -->
+  <div class="page-hero" id="welcome-hero">
+    <div class="welcome-row">
+      <div>
+        <h1>👤 <span class="gradient-text" id="welcome-name">Patient Portal</span></h1>
+        <p class="subtitle" id="welcome-sub">Loading your health dashboard...</p>
+      </div>
+      <div class="welcome-actions">
+        <div class="lang-selector-wrap">
+          <label>🌐 Language</label>
+          <select id="lang-select" onchange="saveLang()">
+            <option value="English">English</option>
+            <option value="Hindi">हिन्दी</option>
+            <option value="Kannada">ಕನ್ನಡ</option>
+            <option value="Tamil">தமிழ்</option>
+            <option value="Telugu">తెలుగు</option>
+            <option value="Malayalam">മലയാളം</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick stats -->
+  <div class="grid-4 mb-3" id="quick-stats">
+    <div class="stat-card blue">
+      <div class="stat-icon">📄</div>
+      <div class="stat-value" id="stat-reports">0</div>
+      <div class="stat-label">Reports</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon">🔔</div>
+      <div class="stat-value" id="stat-notifs">0</div>
+      <div class="stat-label">Unread Alerts</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">📅</div>
+      <div class="stat-value" id="stat-appointments">0</div>
+      <div class="stat-label">Appointments</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-icon">💊</div>
+      <div class="stat-value" id="stat-prescriptions">0</div>
+      <div class="stat-label">Prescriptions</div>
+    </div>
+  </div>
+
+  <div class="grid-2 mb-3">
+    <!-- Patient info -->
+    <div class="card" id="patient-info">
+      <div class="card-header"><h3>📋 My Information</h3></div>
+      <p style="color:var(--text-muted)">Loading...</p>
+    </div>
+    <!-- Notifications -->
+    <div class="card" id="notifications-card">
+      <div class="card-header"><h3>🔔 Notifications</h3><span class="badge badge-cyan" id="notif-count">0</span></div>
+      <div id="notifications-list"><p style="color:var(--text-muted)">Loading...</p></div>
+    </div>
+  </div>
+
+  <!-- Reports -->
+  <div class="card mb-3">
+    <div class="card-header"><h3>📄 Medical Reports</h3><span class="badge badge-blue" id="reports-count">0</span></div>
+    <div class="reports-grid" id="reports-list"><p style="color:var(--text-muted)">Loading...</p></div>
+  </div>
+
+  <!-- DICOM Medical Scans -->
+  <div class="card mb-3">
+    <div class="card-header"><h3>🔬 My Medical Scans</h3><span class="badge badge-cyan" id="scans-count">0</span></div>
+    <div id="scans-list"><p style="color:var(--text-muted)">Loading...</p></div>
+  </div>
+
+  <div class="grid-2 mb-3">
+    <!-- Prescriptions -->
+    <div class="card">
+      <div class="card-header"><h3>💊 Prescriptions</h3></div>
+      <div id="prescriptions-list"><p style="color:var(--text-muted)">Loading...</p></div>
+    </div>
+    <!-- Appointments -->
+    <div class="card">
+      <div class="card-header">
+        <h3>📅 Appointments</h3>
+        <button class="btn btn-primary btn-sm" onclick="openBookModal()">+ Book</button>
+      </div>
+      <div id="appointments-list"><p style="color:var(--text-muted)">Loading...</p></div>
+    </div>
+  </div>
+
+  <!-- AI Explanation -->
+  <div class="card mb-3">
+    <div class="card-header"><h3>🧠 AI Health Explanation</h3></div>
+    <div id="ai-explanation"><p style="color:var(--text-muted)">Loading...</p></div>
+  </div>
+</div>
+
+<!-- Scan Metadata Modal -->
+<div class="modal-backdrop" id="scan-metadata-modal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h3>📋 Scan Metadata</h3>
+      <button class="modal-close" onclick="closeScanMetadata()">✕</button>
+    </div>
+    <div id="scan-metadata-content"></div>
+  </div>
+</div>
+
+<!-- Scan Viewer Modal -->
+<div class="modal-backdrop" id="scan-viewer-modal">
+  <div class="modal" style="max-width:800px">
+    <div class="modal-header">
+      <h3>🔬 Scan Viewer</h3>
+      <button class="modal-close" onclick="closeScanViewer()">✕</button>
+    </div>
+    <div id="scan-viewer-content" style="text-align:center;min-height:300px;display:flex;align-items:center;justify-content:center;"></div>
+  </div>
+</div>
+
+<!-- Translation Modal -->
+<div class="modal-backdrop" id="translate-modal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <h3>🌐 Translate Report</h3>
+      <button class="modal-close" onclick="closeTranslateModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Select Language</label>
+      <select id="translate-lang">
+        <option value="English">English</option>
+        <option value="Hindi">हिन्दी (Hindi)</option>
+        <option value="Kannada">ಕನ್ನಡ (Kannada)</option>
+        <option value="Tamil">தமிழ் (Tamil)</option>
+        <option value="Telugu">తెలుగు (Telugu)</option>
+        <option value="Malayalam">മലയാളം (Malayalam)</option>
+      </select>
+    </div>
+    <div id="translate-original" class="translate-box" style="display:none">
+      <div class="translate-label">Original</div>
+      <p id="translate-original-text"></p>
+    </div>
+    <div id="translate-result" class="translate-box" style="display:none">
+      <div class="translate-label">Simplified</div>
+      <p id="translate-simplified-text"></p>
+    </div>
+    <div id="translate-translated" class="translate-box" style="display:none">
+      <div class="translate-label">Translated</div>
+      <p id="translate-translated-text"></p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="translate-btn" onclick="doTranslate()">🌐 Translate</button>
+      <button class="btn btn-ghost" onclick="speakTranslation()">🔊 Listen</button>
+      <button class="btn btn-ghost" onclick="closeTranslateModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Book Appointment Modal -->
+<div class="modal-backdrop" id="book-modal">
+  <div class="modal" style="max-width:550px">
+    <div class="modal-header">
+      <h3>📅 Book New Appointment</h3>
+      <button class="modal-close" onclick="closeBookModal()">✕</button>
+    </div>
+    <p class="text-muted mb-3">Choose your preferred doctor and time slot. Our team will confirm your request shortly.</p>
+    
+    <div class="booking-form-grid">
+      <div class="form-group">
+        <label>👨‍⚕️ Select Doctor</label>
+        <div class="booking-input-wrap">
+          <span class="input-icon">🩺</span>
+          <select id="book-doctor">
+            <option value="">Loading doctors...</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="grid-2">
+        <div class="form-group">
+          <label>📅 Preferred Date</label>
+          <div class="booking-input-wrap">
+            <span class="input-icon">🗓️</span>
+            <input type="date" id="book-date">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>⏰ Preferred Time</label>
+          <div class="booking-input-wrap">
+            <span class="input-icon">🕒</span>
+            <select id="book-time">
+              <option value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</option>
+              <option value="Afternoon (12 PM - 4 PM)">Afternoon (12 PM - 4 PM)</option>
+              <option value="Evening (4 PM - 8 PM)">Evening (4 PM - 8 PM)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>📝 Reason for Visit</label>
+        <div class="booking-input-wrap">
+          <span class="input-icon">💬</span>
+          <input type="text" id="book-reason" placeholder="e.g. Routine checkup or specific symptoms">
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-actions mt-3">
+      <button class="btn btn-primary btn-full" id="book-btn" onclick="submitBooking()">✨ Send Booking Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- TTS Player bar -->
+<div class="tts-player" id="tts-player" style="display:none">
+  <div class="tts-inner">
+    <span class="tts-label">🔊 Reading report...</span>
+    <div class="tts-controls">
+      <button class="btn btn-sm btn-ghost" onclick="pauseTTS()">⏸ Pause</button>
+      <button class="btn btn-sm btn-ghost" onclick="resumeTTS()">▶ Resume</button>
+      <button class="btn btn-sm btn-danger" onclick="stopTTS()">⏹ Stop</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer"><p>© 2026 AI Healthcare Imaging System</p></footer>
+<script src="/js/api.js"></script>
+<script src="/js/patient.js"></script>
+</body>
+</html>

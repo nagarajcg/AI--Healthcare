@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="Patient login portal for HealthAI — secure access to your medical reports and health data.">
+  <title>Patient Login — HealthAI</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav class="navbar"><div class="navbar-inner">
+  <a href="/" class="navbar-brand"><span class="logo-icon">🧬</span><span>HealthAI</span></a>
+  <button class="nav-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+  <ul class="navbar-links" id="nav-links">
+    <li><a href="/">🏠 Home</a></li>
+    <li><a href="/pages/doctor.html">🩺 Doctor</a></li>
+    <li><a href="/pages/patient-login.html" class="active">👤 Patient</a></li>
+    <li><a href="/pages/staff.html">🏥 Staff</a></li>
+    <li><a href="/pages/agents.html">🤖 AI Agents</a></li>
+  </ul>
+</div></nav>
+
+<div class="login-page">
+  <div class="login-container">
+    <!-- Left decorative panel -->
+    <div class="login-hero">
+      <div class="login-hero-content">
+        <div class="login-hero-icon">🏥</div>
+        <h2>Welcome to<br><span class="gradient-text">HealthAI Patient Portal</span></h2>
+        <p>Access your medical reports, AI-powered health insights, and appointment details — all in one secure place.</p>
+        <div class="login-features">
+          <div class="login-feature-item"><span>📄</span> View & Download Reports</div>
+          <div class="login-feature-item"><span>🌐</span> Multi-language Translation</div>
+          <div class="login-feature-item"><span>🔊</span> Listen to Reports</div>
+          <div class="login-feature-item"><span>🔔</span> Real-time Notifications</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login form -->
+    <div class="login-form-panel">
+      <div class="login-form-inner">
+        <div class="login-form-header">
+          <div class="login-avatar">👤</div>
+          <h2>Patient Login</h2>
+          <p class="text-muted">Enter your Patient ID and password to continue</p>
+        </div>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="patient-id">Patient ID</label>
+            <div class="input-with-icon">
+              <span class="input-icon">🆔</span>
+              <input type="text" id="patient-id" placeholder="e.g. PAT-001" required autocomplete="off">
+            </div>
+          </div>
+
+          <div class="form-group" style="display:none">
+            <label for="password">Password</label>
+            <div class="input-with-icon">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="password" placeholder="Enter your password">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="remember-me">
+              <span class="checkmark"></span>
+              Remember me
+            </label>
+            <a href="#" class="forgot-link" onclick="showForgotPassword(event)">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" id="login-btn">
+            <span class="btn-text">🔐 Sign In</span>
+            <span class="btn-loader" style="display:none">
+              <span class="spinner-small"></span> Signing in...
+            </span>
+          </button>
+        </form>
+
+        <div id="login-error" class="login-toast error" style="display:none"></div>
+        <div id="login-success" class="login-toast success" style="display:none"></div>
+
+        <div class="login-demo-info">
+          <div class="demo-badge">DEMO CREDENTIALS</div>
+          <div class="demo-grid">
+            <div class="demo-item">
+              <span class="demo-label">Patient ID</span>
+              <span class="demo-value" onclick="fillDemo('PAT-001','health123')">PAT-001</span>
+            </div>
+            <div class="demo-item">
+              <span class="demo-label">Password</span>
+              <span class="demo-value">health123</span>
+            </div>
+          </div>
+          <p class="demo-note">Click any Patient ID to auto-fill: 
+            <span class="demo-chip" onclick="fillDemo('PAT-001','health123')">PAT-001</span>
+            <span class="demo-chip" onclick="fillDemo('PAT-002','health123')">PAT-002</span>
+            <span class="demo-chip" onclick="fillDemo('PAT-003','health123')">PAT-003</span>
+            <span class="demo-chip" onclick="fillDemo('PAT-004','health123')">PAT-004</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Forgot password modal -->
+<div class="modal-backdrop" id="forgot-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🔑 Reset Password</h3>
+      <button class="modal-close" onclick="closeForgotModal()">✕</button>
+    </div>
+    <p style="color:var(--text-secondary);margin-bottom:20px">Enter your Patient ID and we'll send an OTP to your registered phone number.</p>
+    <div class="form-group">
+      <label>Patient ID</label>
+      <input type="text" id="forgot-pid" placeholder="e.g. PAT-001">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="sendResetOTP()">📱 Send OTP</button>
+    <div id="forgot-msg" class="login-toast success" style="display:none;margin-top:12px"></div>
+  </div>
+</div>
+
+<footer class="footer"><p>© 2026 AI Healthcare Imaging System</p></footer>
+<script src="/js/api.js"></script>
+<script src="/js/patient-login.js"></script>
+</body>
+</html>

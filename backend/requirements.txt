@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-multipart
+PyJWT
+reportlab
+pydicom
+numpy
+Pillow
+
+google-generativeai
+python-dotenv
